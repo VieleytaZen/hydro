@@ -54,8 +54,11 @@ const handler = async (hydro, m, { text, command, prefix, isCmd }) => {
             if (aiHistory[sessionId].length > 10) aiHistory[sessionId].shift();
 
             try {
+                // Send typing indicator
+                await hydro.sendPresenceUpdate('composing', chat);
+
                 const response = await axios.post('https://openrouter.ai/api/v1/chat/completions', {
-                    model: "z-ai/glm-4.5-air:free",
+                    model: "google/gemini-2.0-flash-lite-preview-02-05:free",
                     messages: [
                         { 
                             role: 'system', 
