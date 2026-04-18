@@ -163,8 +163,7 @@ async function hydroInd() {
 
     if (!hydro.authState.creds.registered) {
         const inputNumber = await question('Masukin nomor yang mau dijadikan bot.. contoh: 6285187063723\n');
-        const pairinghydro = "HYDRO";
-        let code = await hydro.requestPairingCode(inputNumber || phoneNumber, pairinghydro);
+        let code = await hydro.requestPairingCode(inputNumber || phoneNumber);
         code = code?.match(/.{1,4}/g)?.join("-") || code;
         console.log(`Ini kodenya:`, code);
     }
