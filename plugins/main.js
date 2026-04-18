@@ -27,17 +27,28 @@ const handler = async (hydro, m, { text, command, prefix, isCmd }) => {
         return hydro.sendMessage(m.chat, buttonMessage, { quoted: m });
     }
 
+    // Set API Key Command
+    if (command === 'setkey') {
+        if (!isOwner) return m.reply(global.mess.only.owner);
+        if (!text) return m.reply(`Contoh: ${prefix + command} sk-or-v1-xxxx`);
+        global.openrouter_key = text;
+        return m.reply(`API Key OpenRouter berhasil diatur! (｡•̀ᴗ-)✧`);
+    }
+
     // AI Auto Chat
-    if (!isCmd && !m.key.fromMe) {
+    if ((command === 'ai' || !isCmd) && !m.key.fromMe) {
         const isGroup = m.isGroup;
         const chat = m.chat;
         const sender = m.sender;
-        const body = m.text || m.caption || '';
+        const body = text || m.text || m.caption || '';
         
+        if (!body && command === 'ai') return m.reply("Mau nanya apa sama Hydro AI? (｡•̀ᴗ-)");
         if (!body) return;
 
         let shouldReply = false;
-        if (!isGroup) {
+        if (command === 'ai') {
+            shouldReply = true;
+        } else if (!isGroup) {
             shouldReply = true;
         } else {
             const botNumber = hydro.user.id.split(':')[0] + '@s.whatsapp.net';
@@ -47,6 +58,7 @@ const handler = async (hydro, m, { text, command, prefix, isCmd }) => {
         }
 
         if (shouldReply) {
+            console.log(`[DEBUG] AI Triggered for ${chat}. Body: ${body}`);
             const sessionId = isGroup ? chat : sender;
             if (!aiHistory[sessionId]) aiHistory[sessionId] = [];
 
@@ -57,6 +69,7 @@ const handler = async (hydro, m, { text, command, prefix, isCmd }) => {
                 // Send typing indicator
                 await hydro.sendPresenceUpdate('composing', chat);
 
+                console.log(`[DEBUG] Requesting AI for session: ${sessionId}`);
                 const response = await axios.post('https://openrouter.ai/api/v1/chat/completions', {
                     model: "google/gemini-2.0-flash-lite-preview-02-05:free",
                     messages: [
@@ -177,7 +190,7 @@ Jika user bertanya tentang fitur bot Hydro, kamu bisa menjelaskan bahwa bot ini 
                     ]
                 }, {
                     headers: {
-                        'Authorization': `Bearer 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`,
+                        'Authorization': `Bearer ${global.openrouter_key || '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'}`,
                         'Content-Type': 'application/json'
                     }
                 });
